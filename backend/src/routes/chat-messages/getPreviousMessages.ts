@@ -7,15 +7,10 @@ import type { Request, Response } from 'express';
 
 const router = Router();
 
-router.get('/:chatId', async (req: Request, res: Response) => {
-    const { chatId } = req.params;
-
-    if (!chatId) {
-        return httpResponseBadRequest(errorMessages.invalidRequestQuery, null, res);
-    }
+router.get('/', async (req: Request, res: Response) => {
 
     try {
-        const chatMessages = await chatControllerInstance.getChatMessagesByChatId(chatId);
+        const chatMessages = await chatControllerInstance.getChatMessages();
         return httpResponseOk(successMessages.chatMessagesRetrieved, chatMessages, res);
     } catch (err) {
         if (err instanceof CustomError) {

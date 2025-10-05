@@ -8,37 +8,32 @@ export interface IChatMessagesRepository {
     /**
      * Creates a new AI message with the given details.
      *
-     * @param chatId The ID of the chat creating the message.
      * @param message The message details as a string.
      * @param role The role of the message.
      * @returns A promise that resolves to the created message.
      */
     createChatMessage(
-        chatId: string,
         message: string,
         role: string,
     ): Promise<chat_messages>;
 
     /**
-     * Retrieves all messages for a given chat.
+     * Retrieves all messages on the chat.
      *
-     * @param chatId The ID of the chat whose messages are to be retrieved.
      * @returns A promise that resolves to an array of messages.
      */
-    getChatMessagesByChatId(chatId: string): Promise<chat_messages[]>;
+    getChatMessages(): Promise<chat_messages[]>;
 }
 
 export class ChatMessagesRepositoryMock implements IChatMessagesRepository {
     private chatMessages: chat_messages[] = [];
 
     async createChatMessage(
-        chatId: string,
         message: string,
         role: string,
     ): Promise<chat_messages> {
         const newChatMessage: chat_messages = {
             id: v4(),
-            chat_id: chatId,
             message,
             role,
             created_at: getTimestamp().toString(),
@@ -47,8 +42,8 @@ export class ChatMessagesRepositoryMock implements IChatMessagesRepository {
         return newChatMessage;
     }
 
-    async getChatMessagesByChatId(chatId: string): Promise<chat_messages[]> {
-        return this.chatMessages.filter((chatMessage) => chatMessage.chat_id === chatId);
+    async getChatMessages(): Promise<chat_messages[]> {
+        return this.chatMessages;
     }
 }
 
@@ -60,13 +55,11 @@ export class ChatMessagesRepository implements IChatMessagesRepository {
     }
 
     async createChatMessage(
-        chatId: string,
         message: string,
         role: string,
     ): Promise<chat_messages> {
         const newChatMessage: chat_messages = {
             id: v4(),
-            chat_id: chatId,
             message,
             role,
             created_at: getTimestamp().toString(),
@@ -75,7 +68,7 @@ export class ChatMessagesRepository implements IChatMessagesRepository {
         return newChatMessage;
     }
 
-    async getChatMessagesByChatId(chatId: string): Promise<chat_messages[]> {
-        return this.db.select("chat_messages", { chat_id: chatId });
+    async getChatMessages(): Promise<chat_messages[]> {
+        return this.db.select("chat_messages", {});
     }
 }

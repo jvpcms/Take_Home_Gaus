@@ -16,31 +16,21 @@ type ChatMessageDTO = {
 
 export interface IChatController {
     /**
-     * Creates a new chat, adds a default message to the chat, returns the chat id
-     *
-     * @returns A promise that resolves to the created chat
-     */
-    createChat(): Promise<string>;
-
-    /**
      * Generates a chat response for the given chat
      *
-     * @param chatId The ID of the chat
      * @param message The message to generate a response for
      * @returns A string promise that resolves when the chat response is complete
      */
     generateChatResponse(
-        chatId: string,
         message: string,
     ): Promise<ChatMessageDTO>;
 
     /**
      * Retrieves the chat messages for the given chat
      *
-     * @param chatId The ID of the chat whose messages are to be retrieved
      * @returns A promise that resolves to an array of travel plans
      */
-    getChatMessagesByChatId(chatId: string): Promise<ChatMessageDTO[]>;
+    getChatMessages(): Promise<ChatMessageDTO[]>;
 }
 
 class ChatController implements IChatController {
@@ -54,21 +44,14 @@ class ChatController implements IChatController {
         this.logger = logger;
     }
 
-    async createChat(): Promise<string> {
-        const chatId = v4();
-        await this.chatMessagesRepository.createChatMessage(chatId, defaultMessages.defaultChatMessage, "assistant");
-        return chatId;
-    }
-
     async generateChatResponse(
-        chatId: string,
         message: string,
     ): Promise<ChatMessageDTO> {
-        const chatMessage = await this.chatMessagesRepository.createChatMessage(chatId, message, "user");
+        const chatMessage = await this.chatMessagesRepository.createChatMessage(message, "user");
 
         const assistantMessage = await servicesCollectionInstance.n8n.generateChatResponse(chatMessage.message);
 
-        await this.chatMessagesRepository.createChatMessage(chatId, assistantMessage, "assistant");
+        await this.chatMessagesRepository.createChatMessage(assistantMessage, "assistant");
 
         return {
             message: assistantMessage,
@@ -76,8 +59,8 @@ class ChatController implements IChatController {
         };
     }
 
-    async getChatMessagesByChatId(chatId: string): Promise<ChatMessageDTO[]> {
-        const chatMessages = await this.chatMessagesRepository.getChatMessagesByChatId(chatId);
+    async getChatMessages(): Promise<ChatMessageDTO[]> {
+        const chatMessages = await this.chatMessagesRepository.getChatMessages();
         return chatMessages.map((chatMessage) => ({
             message: chatMessage.message,
             role: chatMessage.role as "user" | "assistant",
@@ -86,12 +69,7 @@ class ChatController implements IChatController {
 }
 
 export class ChatControllerMock implements IChatController {
-    async createChat(): Promise<string> {
-        return "mock-chat-id";
-    }
-
     async generateChatResponse(
-        chatId: string,
         message: string,
     ): Promise<ChatMessageDTO> {
         return {
@@ -100,7 +78,7 @@ export class ChatControllerMock implements IChatController {
         };
     }
 
-    async getChatMessagesByChatId(chatId: string): Promise<ChatMessageDTO[]> {
+    async getChatMessages(): Promise<ChatMessageDTO[]> {
         return [{
             message: "mock-response",
             role: "assistant",

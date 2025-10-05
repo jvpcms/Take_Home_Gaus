@@ -13,13 +13,7 @@ import type { Request as ExpressRequest, Response as ExpressResponse } from 'exp
 
 const router = ExpressRouter();
 
-router.post('/:chatId/generate', async (req: ExpressRequest, res: ExpressResponse) => {
-
-    const { chatId } = req.params;
-
-    if (!chatId) {
-        return httpResponseBadRequest(errorMessages.invalidRequestQuery, null, res);
-    }
+router.post('/generate', async (req: ExpressRequest, res: ExpressResponse) => {
 
     const ExpectedSchema = z.object({
         message: z.string(),
@@ -33,7 +27,7 @@ router.post('/:chatId/generate', async (req: ExpressRequest, res: ExpressRespons
 
     try {
         const body = req.body as ExpectedBodyType;
-        const chatMessage = await chatControllerInstance.generateChatResponse(chatId, body.message);
+        const chatMessage = await chatControllerInstance.generateChatResponse(body.message);
         return httpResponseOk(successMessages.chatMessageGenerated, chatMessage, res);
     } catch (err) {
 
