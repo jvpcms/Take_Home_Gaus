@@ -51,9 +51,9 @@ const Index = () => {
       const response = await sendMessage(content);
 
       const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: response,
+        id: response.id,
+        role: response.role,
+        content: response.content,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -79,7 +79,7 @@ const Index = () => {
       <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            AI Chat Assistant
+            Market Analysis Assistant
           </h1>
           <Button
             variant="ghost"

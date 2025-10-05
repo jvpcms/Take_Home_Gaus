@@ -1,4 +1,14 @@
 services:
+  # frontend:
+  #   container_name: gaus-frontend
+  #   build:
+  #     context: ./frontend
+  #     args:
+  #       VITE_BACKEND_URL: http://localhost:8081
+  #   depends_on:
+  #     - backend
+  #   ports:
+  #     - "8080:8080"
   # backend:
   #   container_name: gaus-backend
   #   build: ./backend
