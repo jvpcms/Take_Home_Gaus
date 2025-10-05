@@ -10,6 +10,7 @@ import { IN8nService } from "../services/n8n/index.ts";
 import { v4 } from "uuid";
 
 type ChatMessageDTO = {
+    id: string;
     message: string;
     role: "user" | "assistant";
 };
@@ -54,14 +55,16 @@ class ChatController implements IChatController {
     async generateChatResponse(
         message: string,
     ): Promise<ChatMessageDTO> {
-        const chatMessage = await this.chatMessagesRepository.createChatMessage(message, "user");
+        await this.chatMessagesRepository.createChatMessage(message, "user");
+        const messageHistory = await this.chatMessagesRepository.getChatMessages();
 
-        const assistantMessage = await servicesCollectionInstance.n8n.generateChatResponse(chatMessage.message);
+        const assistantMessage = await servicesCollectionInstance.n8n.generateChatResponse(messageHistory);
 
-        await this.chatMessagesRepository.createChatMessage(assistantMessage, "assistant");
+        const insertedAssistantMessage = await this.chatMessagesRepository.createChatMessage(assistantMessage, "assistant");
 
         return {
-            message: assistantMessage,
+            id: insertedAssistantMessage.id,
+            message: insertedAssistantMessage.message,
             role: "assistant",
         };
     }
@@ -75,6 +78,7 @@ class ChatController implements IChatController {
         }
 
         return chatMessages.map((chatMessage) => ({
+            id: chatMessage.id,
             message: chatMessage.message,
             role: chatMessage.role as "user" | "assistant",
         }));
@@ -91,6 +95,7 @@ export class ChatControllerMock implements IChatController {
         message: string,
     ): Promise<ChatMessageDTO> {
         return {
+            id: "mock-id",
             message: "mock-response",
             role: "assistant",
         };
@@ -98,6 +103,7 @@ export class ChatControllerMock implements IChatController {
 
     async getChatMessages(): Promise<ChatMessageDTO[]> {
         return [{
+            id: "mock-id",
             message: "mock-response",
             role: "assistant",
         }];
@@ -105,6 +111,7 @@ export class ChatControllerMock implements IChatController {
 
     async clearChatMessages(): Promise<ChatMessageDTO[]> {
         return [{
+            id: "mock-id",
             message: "mock-response",
             role: "assistant",
         }];

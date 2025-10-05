@@ -18,6 +18,7 @@ export const errorMessages = {
     nodeEnvEnvVarInvalid: "NODE_ENV enviroment variable is invalid",
     openAIServiceKeyNotDefined: "OPENAI_SERVICE_KEY is not defined in .env file",
     n8nServiceKeyNotDefined: "N8N_SERVICE_KEY is not defined in .env file",
+    n8nServiceUrlEnvVarNotDefined: "N8N_SERVICE_URL is not defined in .env file",
 };
 
 export const serviceMessages = {

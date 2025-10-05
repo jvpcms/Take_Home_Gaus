@@ -143,6 +143,18 @@ class EnvConfig {
 
         return process.env.OPENAI_SERVICE_KEY;
     }
+
+    /**
+     * Reloads enviorement variables and return N8N_SERVICE_URL var
+     * @returns n8n service url
+     */
+    public n8nServiceUrl(): string {
+        this.loadEnv();
+        if (!process.env.N8N_SERVICE_URL) {
+            throw new serverErros.N8nServiceUrlEnvVarNotDefined();
+        }
+        return process.env.N8N_SERVICE_URL;
+    }
 }
 
 export default new EnvConfig();

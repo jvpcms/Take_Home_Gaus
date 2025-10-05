@@ -65,6 +65,12 @@ class DbPasswordEnvVarNotDefined extends CustomError {
     }
 }
 
+class N8nServiceUrlEnvVarNotDefined extends CustomError {
+    constructor() {
+        super(errorMessages.n8nServiceUrlEnvVarNotDefined);
+    }
+}
+
 export const httpErros = {
     InvalidRequestBody,
 };
@@ -78,4 +84,5 @@ export const serverErros = {
     DbPasswordEnvVarNotDefined,
     OpenAIServiceKeyNotDefined,
     N8nServiceKeyNotDefined,
+    N8nServiceUrlEnvVarNotDefined,
 };
