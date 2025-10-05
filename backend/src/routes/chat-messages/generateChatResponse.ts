@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { httpResponseBadRequest, httpResponseOk, httpResponseInternalServerError, httpResponseUnauthorized } from '../../utils/httpResponse.ts';
 import { successMessages, errorMessages } from '../../utils/messages.ts';
 
-import { chatMessagesControllerInstance } from '../../controllers/chatMessageController.ts';
+import { chatControllerInstance } from '../../controllers/chatController.ts';
 
 import { CustomError } from '../../utils/customErrors.ts';
 
@@ -33,7 +33,7 @@ router.post('/:chatId/generate', async (req: ExpressRequest, res: ExpressRespons
 
     try {
         const body = req.body as ExpectedBodyType;
-        const chatMessage = await chatMessagesControllerInstance.generateChatResponse(chatId, body.message);
+        const chatMessage = await chatControllerInstance.generateChatResponse(chatId, body.message);
         return httpResponseOk(successMessages.chatMessageGenerated, chatMessage, res);
     } catch (err) {
 

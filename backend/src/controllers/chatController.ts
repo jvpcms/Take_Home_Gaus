@@ -1,20 +1,27 @@
 import { repositoriesCollectionInstance } from "../repositories/repositoriesCollection.ts";
 import { IChatMessagesRepository } from "../repositories/chatMessages.ts";
 
-import { serverErros, CustomError } from "../utils/customErrors.ts";
 import { customLoggerInstance, ICustomLogger } from "../utils/customLogger.ts";
+import { defaultMessages } from "../utils/messages.ts";
 
 import { servicesCollectionInstance } from "../services/servicesCollection.ts";
 import { IN8nService } from "../services/n8n/index.ts";
 
-import type { chat_messages } from "../database/types/chat_messages.ts";
+import { v4 } from "uuid";
 
 type ChatMessageDTO = {
     message: string;
     role: "user" | "assistant";
 };
 
-export interface IChatMessagesController {
+export interface IChatController {
+    /**
+     * Creates a new chat, adds a default message to the chat, returns the chat id
+     *
+     * @returns A promise that resolves to the created chat
+     */
+    createChat(): Promise<string>;
+
     /**
      * Generates a chat response for the given chat
      *
@@ -36,13 +43,21 @@ export interface IChatMessagesController {
     getChatMessagesByChatId(chatId: string): Promise<ChatMessageDTO[]>;
 }
 
-class ChatMessagesController implements IChatMessagesController {
+class ChatController implements IChatController {
+    private readonly n8nService: IN8nService;
     private readonly chatMessagesRepository: IChatMessagesRepository;
     private readonly logger: ICustomLogger;
 
-    constructor(chatMessagesRepository: IChatMessagesRepository, logger: ICustomLogger) {
+    constructor(n8nService: IN8nService, chatMessagesRepository: IChatMessagesRepository, logger: ICustomLogger) {
+        this.n8nService = n8nService;
         this.chatMessagesRepository = chatMessagesRepository;
         this.logger = logger;
+    }
+
+    async createChat(): Promise<string> {
+        const chatId = v4();
+        await this.chatMessagesRepository.createChatMessage(chatId, defaultMessages.defaultChatMessage, "assistant");
+        return chatId;
     }
 
     async generateChatResponse(
@@ -70,7 +85,11 @@ class ChatMessagesController implements IChatMessagesController {
     }
 }
 
-export class ChatMessagesControllerMock implements IChatMessagesController {
+export class ChatControllerMock implements IChatController {
+    async createChat(): Promise<string> {
+        return "mock-chat-id";
+    }
+
     async generateChatResponse(
         chatId: string,
         message: string,
@@ -90,7 +109,8 @@ export class ChatMessagesControllerMock implements IChatMessagesController {
 
 }
 
-export const chatMessagesControllerInstance = new ChatMessagesController(
+export const chatControllerInstance = new ChatController(
+    servicesCollectionInstance.n8n,
     repositoriesCollectionInstance.chatMessages,
     customLoggerInstance,
 );

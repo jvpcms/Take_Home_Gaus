@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { chatMessagesControllerInstance } from '../../controllers/chatMessageController.ts';
+import { chatControllerInstance } from '../../controllers/chatController.ts';
 import { httpResponseOk, httpResponseBadRequest, httpResponseInternalServerError, httpResponseUnauthorized } from '../../utils/httpResponse.ts';
 import { successMessages, errorMessages } from '../../utils/messages.ts';
 import { CustomError } from '../../utils/customErrors.ts';
@@ -15,7 +15,7 @@ router.get('/:chatId', async (req: Request, res: Response) => {
     }
 
     try {
-        const chatMessages = await chatMessagesControllerInstance.getChatMessagesByChatId(chatId);
+        const chatMessages = await chatControllerInstance.getChatMessagesByChatId(chatId);
         return httpResponseOk(successMessages.chatMessagesRetrieved, chatMessages, res);
     } catch (err) {
         if (err instanceof CustomError) {

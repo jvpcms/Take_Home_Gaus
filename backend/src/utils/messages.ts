@@ -22,3 +22,7 @@ export const errorMessages = {
 export const serviceMessages = {
     n8nServiceFailed: "N8n service failed",
 };
+
+export const defaultMessages = {
+    defaultChatMessage: "Hello, how can I help you today?",
+};
