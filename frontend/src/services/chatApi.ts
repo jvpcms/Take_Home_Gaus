@@ -9,7 +9,7 @@ export interface Message {
 export const loadMessageHistory = async (): Promise<Message[]> => {
   // Simulate API delay for loading history
   await new Promise(resolve => setTimeout(resolve, 1500));
-  
+
   // Mock initial message history
   return [
     {
@@ -20,10 +20,16 @@ export const loadMessageHistory = async (): Promise<Message[]> => {
   ];
 };
 
+export const clearMessages = async (): Promise<void> => {
+  // Simulate API delay for clearing messages
+  await new Promise(resolve => setTimeout(resolve, 500));
+  // In a real implementation, this would clear the conversation on the backend
+};
+
 export const sendMessage = async (message: string): Promise<string> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 2000));
-  
+
   // Mock response with markdown
   return `Thank you for your message! You said: **"${message}"**
 

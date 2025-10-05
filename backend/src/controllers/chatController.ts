@@ -31,6 +31,13 @@ export interface IChatController {
      * @returns A promise that resolves to an array of travel plans
      */
     getChatMessages(): Promise<ChatMessageDTO[]>;
+
+    /**
+     * Clears the chat messages for the given chat
+     *
+     * @returns A fresh conversation history
+     */
+    clearChatMessages(): Promise<ChatMessageDTO[]>;
 }
 
 class ChatController implements IChatController {
@@ -60,11 +67,22 @@ class ChatController implements IChatController {
     }
 
     async getChatMessages(): Promise<ChatMessageDTO[]> {
-        const chatMessages = await this.chatMessagesRepository.getChatMessages();
+        let chatMessages = await this.chatMessagesRepository.getChatMessages();
+
+        if (chatMessages.length === 0) {
+            const defaultMessage = await this.chatMessagesRepository.createChatMessage(defaultMessages.defaultChatMessage, "assistant");
+            chatMessages.push(defaultMessage);
+        }
+
         return chatMessages.map((chatMessage) => ({
             message: chatMessage.message,
             role: chatMessage.role as "user" | "assistant",
         }));
+    }
+
+    async clearChatMessages(): Promise<ChatMessageDTO[]> {
+        await this.chatMessagesRepository.clearChatMessages();
+        return this.getChatMessages();
     }
 }
 
@@ -85,6 +103,12 @@ export class ChatControllerMock implements IChatController {
         }];
     }
 
+    async clearChatMessages(): Promise<ChatMessageDTO[]> {
+        return [{
+            message: "mock-response",
+            role: "assistant",
+        }];
+    }
 }
 
 export const chatControllerInstance = new ChatController(

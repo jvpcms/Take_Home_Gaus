@@ -1,6 +1,7 @@
 export const successMessages = {
     chatMessageGenerated: "Chat message generated",
     chatMessagesRetrieved: "Chat messages retrieved",
+    chatMessagesCleared: "Chat messages cleared",
 };
 
 export const errorMessages = {

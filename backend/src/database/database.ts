@@ -27,7 +27,7 @@ export interface IDatabase {
      */
     select<tableName extends keyof DatabaseSchema>(
         table: tableName,
-        where: Partial<DatabaseSchema[tableName]>,
+        where?: Partial<DatabaseSchema[tableName]>,
         params?: { order?: string; limit?: number; offset?: number }
     ): Promise<DatabaseSchema[tableName][]>;
 
@@ -52,7 +52,7 @@ export interface IDatabase {
      */
     delete<tableName extends keyof DatabaseSchema>(
         table: tableName,
-        where: Partial<DatabaseSchema[tableName]>
+        where?: Partial<DatabaseSchema[tableName]>
     ): Promise<void>;
 }
 
@@ -60,26 +60,26 @@ export interface IDatabase {
 class Database implements IDatabase {
     private dbConnection: pgk.Pool;
     private writeMutex: Mutex;
-  
+
     constructor() {
-      this.writeMutex = new Mutex();
-      this.dbConnection = getDbConnection();
+        this.writeMutex = new Mutex();
+        this.dbConnection = getDbConnection();
     }
-  
+
     async insert<tableName extends keyof DatabaseSchema>(
-      table: tableName,
-      data: DatabaseSchema[tableName]
+        table: tableName,
+        data: DatabaseSchema[tableName]
     ): Promise<DatabaseSchema[tableName]> {
 
         const pairs = Object.entries(data);
 
         const query = (
             `INSERT INTO ${table} (${pairs
-            .map(([key]) => key).join(", ")}) VALUES (${pairs.map((_, index) => `$${index + 1}`)
-            .join(", ")}) RETURNING *`
+                .map(([key]) => key).join(", ")}) VALUES (${pairs.map((_, index) => `$${index + 1}`)
+                    .join(", ")}) RETURNING *`
         );
         const values = pairs.map(([, value]) => value);
-  
+
         const insertedData = await this.writeMutex.runExclusive(async () => {
             const insertedData = await this.dbConnection.query(query, values);
             const insertedRows = insertedData.rows;
@@ -88,44 +88,45 @@ class Database implements IDatabase {
 
         return insertedData;
     }
-  
+
     async select<tableName extends keyof DatabaseSchema>(
-      table: tableName,
-      where: Partial<DatabaseSchema[tableName]>,
-      params: { order?: string; limit?: number; offset?: number } = {}
+        table: tableName,
+        where?: Partial<DatabaseSchema[tableName]>,
+        params?: { order?: string; limit?: number; offset?: number }
     ): Promise<DatabaseSchema[tableName][]> {
 
-        const pairs = Object.entries(where);
+        const pairs = Object.entries(where || {});
+        const hasWhereClause = pairs.length > 0;
 
         const query = (
             `SELECT * FROM ${table} 
-            WHERE ${pairs.map(([key], index) => `${key} = $${index + 1}`)
-            .join(" AND ")} 
-            ${params.order ? `ORDER BY ${params.order}` : ""} 
-            ${params.limit ? `LIMIT ${params.limit}` : ""} 
-            ${params.offset ? `OFFSET ${params.offset}` : ""}`
+            ${hasWhereClause ? `WHERE ${pairs.map(([key], index) => `${key} = $${index + 1}`)
+                .join(" AND ")}` : ""} 
+            ${params?.order ? `ORDER BY ${params.order}` : ""} 
+            ${params?.limit ? `LIMIT ${params.limit}` : ""} 
+            ${params?.offset ? `OFFSET ${params.offset}` : ""}`
         );
         const values = pairs.map(([, value]) => value);
 
         const selectedData = await this.dbConnection.query(query, values);
-        
+
         return selectedData.rows as DatabaseSchema[tableName][];
     }
-  
+
     async update<tableName extends keyof DatabaseSchema>(
-      table: tableName,
-      where: Partial<DatabaseSchema[tableName]>,
-      change: Partial<DatabaseSchema[tableName]>
+        table: tableName,
+        where: Partial<DatabaseSchema[tableName]>,
+        change: Partial<DatabaseSchema[tableName]>
     ): Promise<DatabaseSchema[tableName][]> {
         const wherePairs = Object.entries(where);
         const dataPairs = Object.entries(change);
 
         const query = (
             `UPDATE ${table} SET ${dataPairs
-            .map(([key], index) => `${key} = $${index + 1}`)
-            .join(", ")} WHERE ${wherePairs
-            .map(([key], index) => `${key} = $${dataPairs.length + index + 1}`)
-            .join(" AND ")} RETURNING *`
+                .map(([key], index) => `${key} = $${index + 1}`)
+                .join(", ")} WHERE ${wherePairs
+                    .map(([key], index) => `${key} = $${dataPairs.length + index + 1}`)
+                    .join(" AND ")} RETURNING *`
         );
 
         const whereValues = wherePairs.map(([, value]) => value);
@@ -141,24 +142,25 @@ class Database implements IDatabase {
 
         return updatedData;
     }
-  
+
     async delete<tableName extends keyof DatabaseSchema>(
-      table: tableName,
-      where: Partial<DatabaseSchema[tableName]>
+        table: tableName,
+        where?: Partial<DatabaseSchema[tableName]>
     ): Promise<void> {
 
-        const pairs = Object.entries(where);
+        const pairs = Object.entries(where || {});
+        const hasWhereClause = pairs.length > 0;
 
         const query = (
             `DELETE FROM ${table} 
-            WHERE ${pairs.map(([key], index) => `${key} = $${index + 1}`)
-            .join(" AND ")}`
+            ${hasWhereClause ? `WHERE ${pairs.map(([key], index) => `${key} = $${index + 1}`)
+                .join(" AND ")}` : ""}
+            `
         );
-        const values = pairs.map(([, value]) => value);
 
-        await this.dbConnection.query(query, values);
+        await this.dbConnection.query(query);
     }
-  }
+}
 
 
 let database: IDatabase | null = null;

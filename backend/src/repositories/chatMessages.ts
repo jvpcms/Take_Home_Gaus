@@ -23,6 +23,13 @@ export interface IChatMessagesRepository {
      * @returns A promise that resolves to an array of messages.
      */
     getChatMessages(): Promise<chat_messages[]>;
+
+    /**
+     * Clears the chat messages for the given chat
+     *
+     * @returns A fresh conversation history
+     */
+    clearChatMessages(): Promise<void>;
 }
 
 export class ChatMessagesRepositoryMock implements IChatMessagesRepository {
@@ -44,6 +51,11 @@ export class ChatMessagesRepositoryMock implements IChatMessagesRepository {
 
     async getChatMessages(): Promise<chat_messages[]> {
         return this.chatMessages;
+    }
+
+    async clearChatMessages(): Promise<void> {
+        this.chatMessages = [];
+        return;
     }
 }
 
@@ -69,6 +81,11 @@ export class ChatMessagesRepository implements IChatMessagesRepository {
     }
 
     async getChatMessages(): Promise<chat_messages[]> {
-        return this.db.select("chat_messages", {});
+        return await this.db.select("chat_messages");
+    }
+
+    async clearChatMessages(): Promise<void> {
+        await this.db.delete("chat_messages");
+        return;
     }
 }

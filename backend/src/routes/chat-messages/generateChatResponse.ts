@@ -13,7 +13,7 @@ import type { Request as ExpressRequest, Response as ExpressResponse } from 'exp
 
 const router = ExpressRouter();
 
-router.post('/generate', async (req: ExpressRequest, res: ExpressResponse) => {
+router.post('/', async (req: ExpressRequest, res: ExpressResponse) => {
 
     const ExpectedSchema = z.object({
         message: z.string(),
@@ -31,7 +31,6 @@ router.post('/generate', async (req: ExpressRequest, res: ExpressResponse) => {
         return httpResponseOk(successMessages.chatMessageGenerated, chatMessage, res);
     } catch (err) {
 
-        console.log('err', err);
         if (err instanceof CustomError) {
             return httpResponseBadRequest(err.message, null, res);
         } else {

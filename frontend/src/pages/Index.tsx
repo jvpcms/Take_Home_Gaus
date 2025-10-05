@@ -3,7 +3,9 @@ import { ChatMessage } from '@/components/ChatMessage';
 import { ChatInput } from '@/components/ChatInput';
 import { ThinkingIndicator } from '@/components/ThinkingIndicator';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
-import { sendMessage, loadMessageHistory, type Message } from '@/services/chatApi';
+import { Button } from '@/components/ui/button';
+import { Trash2 } from 'lucide-react';
+import { sendMessage, loadMessageHistory, clearMessages, type Message } from '@/services/chatApi';
 
 type ChatState = 'loading' | 'idle' | 'thinking';
 
@@ -47,7 +49,7 @@ const Index = () => {
 
     try {
       const response = await sendMessage(content);
-      
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -62,13 +64,32 @@ const Index = () => {
     }
   };
 
+  const handleClearMessages = async () => {
+    try {
+      await clearMessages();
+      const history = await loadMessageHistory();
+      setMessages(history);
+    } catch (error) {
+      console.error('Error clearing messages:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[image:var(--gradient-bg)] flex flex-col">
       <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             AI Chat Assistant
           </h1>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClearMessages}
+            disabled={state !== 'idle' || messages.length === 0}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Clear
+          </Button>
         </div>
       </header>
 
@@ -81,9 +102,9 @@ const Index = () => {
               {messages.map((message) => (
                 <ChatMessage key={message.id} role={message.role} content={message.content} />
               ))}
-              
+
               {state === 'thinking' && <ThinkingIndicator />}
-              
+
               <div ref={messagesEndRef} />
             </>
           )}
