@@ -1,24 +1,19 @@
-import envconfig from "../../envconfig/envconfig";
-import type { chat_messages } from "../../database/types/chat_messages";
+import envconfig from "../../envconfig/envconfig.ts";
 export interface IN8nService {
-    generateChatResponse(messages: chat_messages[]): Promise<string>;
+    generateChatResponse(prompt: string): Promise<string>;
 }
 
 export class N8nService implements IN8nService {
-    async generateChatResponse(messages: chat_messages[]): Promise<string> {
-        const historyDTO = messages.map((message) => ({
-            role: message.role,
-            message: message.message,
-        }));
-        console.log("historyDTO", historyDTO);
+    async generateChatResponse(prompt: string): Promise<string> {
         const response = await fetch(envconfig.n8nServiceUrl(), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ messageHistory: historyDTO }),
+            body: JSON.stringify({ prompt }),
         });
         const responseJson = await response.json();
+        console.log(responseJson);
         return responseJson.output;
     }
 }

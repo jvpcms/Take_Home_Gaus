@@ -4,10 +4,7 @@ import { IChatMessagesRepository } from "../repositories/chatMessages.ts";
 import { customLoggerInstance, ICustomLogger } from "../utils/customLogger.ts";
 import { defaultMessages } from "../utils/messages.ts";
 
-import { servicesCollectionInstance } from "../services/servicesCollection.ts";
-import { IN8nService } from "../services/n8n/index.ts";
-
-import { v4 } from "uuid";
+import { servicesCollectionInstance, ServicesCollection } from "../services/servicesCollection.ts";
 
 type ChatMessageDTO = {
     id: string;
@@ -42,12 +39,12 @@ export interface IChatController {
 }
 
 class ChatController implements IChatController {
-    private readonly n8nService: IN8nService;
+    private readonly servicesCollection: ServicesCollection;
     private readonly chatMessagesRepository: IChatMessagesRepository;
     private readonly logger: ICustomLogger;
 
-    constructor(n8nService: IN8nService, chatMessagesRepository: IChatMessagesRepository, logger: ICustomLogger) {
-        this.n8nService = n8nService;
+    constructor(servicesCollection: ServicesCollection, chatMessagesRepository: IChatMessagesRepository, logger: ICustomLogger) {
+        this.servicesCollection = servicesCollection;
         this.chatMessagesRepository = chatMessagesRepository;
         this.logger = logger;
     }
@@ -56,9 +53,17 @@ class ChatController implements IChatController {
         message: string,
     ): Promise<ChatMessageDTO> {
         await this.chatMessagesRepository.createChatMessage(message, "user");
-        const messageHistory = await this.chatMessagesRepository.getChatMessages();
 
-        const assistantMessage = await servicesCollectionInstance.n8n.generateChatResponse(messageHistory);
+        const benchmarkData = await this.servicesCollection.benchmarks.getBenchmarkLastYearReport();
+        const prompt = `
+            Useful Benchmark Data: ${JSON.stringify(benchmarkData)}
+
+            ------------------------------------------------
+
+            User Request: ${message}
+        `;
+
+        const assistantMessage = await this.servicesCollection.n8n.generateChatResponse(prompt);
 
         const insertedAssistantMessage = await this.chatMessagesRepository.createChatMessage(assistantMessage, "assistant");
 
@@ -119,7 +124,7 @@ export class ChatControllerMock implements IChatController {
 }
 
 export const chatControllerInstance = new ChatController(
-    servicesCollectionInstance.n8n,
+    servicesCollectionInstance,
     repositoriesCollectionInstance.chatMessages,
     customLoggerInstance,
 );

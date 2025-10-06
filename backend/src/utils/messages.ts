@@ -26,5 +26,9 @@ export const serviceMessages = {
 };
 
 export const defaultMessages = {
-    defaultChatMessage: "Hello, how can I help you today?",
+    defaultChatMessage: `
+Please provide the name or stock ticker of a company you're interested in. I will generate a comprehensive, standalone **financial report** based on your request.
+
+Which company would you like to analyze?
+    `,
 };
