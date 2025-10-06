@@ -31,4 +31,5 @@ Please provide the name or stock ticker of a company you're interested in. I wil
 
 Which company would you like to analyze?
     `,
+    defaultFollowUpMessage: "\n\n---\n\n**Which company would you like to analyze next?**"
 };

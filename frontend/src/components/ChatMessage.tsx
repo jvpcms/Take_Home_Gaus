@@ -1,4 +1,5 @@
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface ChatMessageProps {
   role: 'user' | 'assistant';
@@ -19,8 +20,8 @@ export const ChatMessage = ({ role, content }: ChatMessageProps) => {
         {isUser ? (
           <p className="whitespace-pre-wrap">{content}</p>
         ) : (
-          <div className="prose prose-sm max-w-none dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted prose-pre:text-foreground prose-a:text-primary prose-a:underline prose-a:hover:opacity-80 prose-a:transition-opacity">
-            <ReactMarkdown>{content}</ReactMarkdown>
+          <div className="prose prose-sm max-w-none dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted prose-pre:text-foreground prose-headings:text-foreground prose-strong:text-foreground prose-code:text-foreground [&_a]:text-primary [&_a]:underline [&_a]:font-medium [&_a:hover]:opacity-80 [&_a]:transition-opacity">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
           </div>
         )}
       </div>

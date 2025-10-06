@@ -13,7 +13,6 @@ export class N8nService implements IN8nService {
             body: JSON.stringify({ prompt }),
         });
         const responseJson = await response.json();
-        console.log(responseJson);
         return responseJson.output;
     }
 }

@@ -64,13 +64,14 @@ class ChatController implements IChatController {
         `;
 
         const assistantMessage = await this.servicesCollection.n8n.generateChatResponse(prompt);
+        const assistantMessageWithFollowUp = assistantMessage + defaultMessages.defaultFollowUpMessage;
 
-        const insertedAssistantMessage = await this.chatMessagesRepository.createChatMessage(assistantMessage, "assistant");
+        const insertedAssistantMessage = await this.chatMessagesRepository.createChatMessage(assistantMessageWithFollowUp, "assistant");
 
         return {
             id: insertedAssistantMessage.id,
             message: insertedAssistantMessage.message,
-            role: "assistant",
+            role: insertedAssistantMessage.role as "user" | "assistant",
         };
     }
 
