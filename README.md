@@ -59,8 +59,6 @@ LLM processing times makes the latency increase really fast as the amount of dat
 
 ## Future Ideas & Improvements
 
-This project serves as a strong foundation, and there are many exciting avenues for future development:
-
 - Look into parsing and analyzing quarterly letters from managers of large investment funds. These provide more profound insights than standard news articles.
 - Allow agents to make new tool calls during its reasoning process. For example, if it finds a news article about a product launch, it could trigger a new search for competitor reactions. This would work well with newer reasoning models.   
 - Implement WebSockets for real time Updates. Solve the latency issue by having n8n push parts of the analysis to the client via WebSockets as they are completed. This would allow for a more complex agent structure without forcing the user to wait for a single, long HTTP response.
