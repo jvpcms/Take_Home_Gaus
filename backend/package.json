@@ -1,0 +1,33 @@
+{
+  "name": "travelco",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "NODE_ENV=local-dev tsx watch src/index.ts",
+    "start": "node --loader ts-node/esm src/index.ts",
+    "build": "tsc",
+    "migrate": "node --loader ts-node/esm src/database/migrate.ts"
+  },
+  "dependencies": {
+    "async-mutex": "^0.5.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "openai": "^4.90.0",
+    "pg": "^8.14.1",
+    "uuid": "^11.1.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.13.9",
+    "@types/pg": "^8.11.11",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.2"
+  }
+}
